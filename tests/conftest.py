@@ -61,6 +61,10 @@ def ts(hhmm: str, day: str = SAT) -> str:
     return f"{day}T{hhmm}:00Z"
 
 
+def at(hhmm: str, day: str = SAT) -> datetime:
+    return datetime.fromisoformat(ts(hhmm, day).replace("Z", "+00:00"))
+
+
 def request(client, ground="A", event="league", frm="14:00", to="17:00", club=CLUB, day=SAT):
     return client.post("/bookings", json={"ground": ground, "event": event, "from": ts(frm, day), "to": ts(to, day), "club": club})
 
@@ -71,6 +75,12 @@ def requested(client, ground="A", event="league", frm="14:00", to="17:00", club=
     return r.json()
 
 
+def confirm(client, booking_id):
+    return client.post(f"/bookings/{booking_id}/confirm")
+
+
+def cancel(client, booking_id):
+    return client.post(f"/bookings/{booking_id}/cancel")
 def booking(client, booking_id) -> dict:
     r = client.get(f"/bookings/{booking_id}")
     assert r.status_code == 200, r.text

@@ -3,6 +3,7 @@ is computed on read from these rows; there is deliberately no held_from / held_t
 from datetime import datetime
 
 from sqlalchemy import (
+    Boolean,
     DateTime,
     ForeignKey,
     Integer,
@@ -48,7 +49,8 @@ class EventType(Base):
 
 
 class Booking(Base):
-    """One row per request. The interval is [from_at, to_at); the shadow is derived."""
+    """One row per request. The interval is [from_at, to_at); the shadow is derived. It also holds the transition
+    stamps."""
     __tablename__ = "bookings"
     id: Mapped[int] = mapped_column(primary_key=True)    
     venue_id: Mapped[int] = mapped_column(ForeignKey("venues.id"))
@@ -60,6 +62,8 @@ class Booking(Base):
     state: Mapped[str] = mapped_column(String(12))                     # requested | confirmed | cancelled | expired
     requested_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
     hold_until: Mapped[datetime] = mapped_column(DateTime(timezone=True))
-
+    confirmed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    cancelled_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    late_cancel: Mapped[bool] = mapped_column(Boolean, default=False)
 
     

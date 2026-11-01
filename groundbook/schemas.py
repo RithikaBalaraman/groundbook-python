@@ -114,3 +114,16 @@ class BookingOut(BaseModel):
     state: BookingState
 
 
+class ConfirmOut(BaseModel):
+    booking_id: str
+    state: BookingState
+    confirmed_at: UtcZ
+
+
+class CancelOut(BaseModel):
+    booking_id: str
+    state: BookingState
+    cancelled_at: UtcZ
+    late: bool
+
+
