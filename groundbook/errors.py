@@ -16,6 +16,22 @@ class DomainError(Exception):
         self.extra = extra
 
 
+class BadInterval(DomainError):
+    """A body that passed its Field constraints but asks for something impossible -- `to` not after `from`,
+    the past, two dates, or a shadow outside the ground's hours (`opens`/`closes` say the hours)."""
+    status, type, title = 400, "/errors/bad-interval", "The interval cannot be booked"
+
+
+
+
+class NoSuchEventType(DomainError):
+    status, type, title = 400, "/errors/no-such-event-type", "No such event type at this venue"
+
+
+class NoSuchBooking(DomainError):
+    status, type, title = 404, "/errors/no-such-booking", "No such booking at this venue"
+
+
 class NoSuchVenue(DomainError):
     status, type, title = 404, "/errors/no-such-venue", "No such venue"
 
@@ -25,4 +41,5 @@ class NoSuchGround(DomainError):
 
 
 # (status, type, title) of the refusals the framework raises before a route runs.
+VALIDATION = (422, "/errors/validation", "The request body is not valid")
 FILTER = (400, "/errors/validation", "Invalid query parameter")
