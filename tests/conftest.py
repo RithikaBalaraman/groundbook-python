@@ -52,7 +52,6 @@ def db(app):
     return app.state.sessionmaker
 
 
-
 def iso(dt: datetime) -> str:
     return dt.strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -79,12 +78,17 @@ def confirm(client, booking_id):
     return client.post(f"/bookings/{booking_id}/confirm")
 
 
+
 def cancel(client, booking_id):
     return client.post(f"/bookings/{booking_id}/cancel")
 def booking(client, booking_id) -> dict:
     r = client.get(f"/bookings/{booking_id}")
     assert r.status_code == 200, r.text
     return r.json()
+
+
+def move(client, booking_id, frm, to, day=SAT):
+    return client.post(f"/bookings/{booking_id}/move", json={"from": ts(frm, day), "to": ts(to, day)})
 
 
 def day(client, ground="A", date=SAT) -> dict:
