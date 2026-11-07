@@ -48,7 +48,6 @@ def test_a_valid_move_releases_the_old_interval_and_takes_the_new_one_in_one_row
         row = s.get(Booking, 1)
         assert row.previous_from.replace(tzinfo=None) == at("14:00").replace(tzinfo=None) and row.previous_to.replace(tzinfo=None) == at("17:00").replace(tzinfo=None)
 
-
 def test_a_failure_injected_after_the_check_rolls_the_move_back(client, db):
     a = requested(client, "A", "league", "14:00", "17:00")
     with db() as s:   # the database refuses the move's own write, after the clash check has passed
@@ -59,7 +58,7 @@ def test_a_failure_injected_after_the_check_rolls_the_move_back(client, db):
     with db() as s:
         s.execute(text("DROP TRIGGER fail_move"))
         s.commit()
-    assert r.status_code == 500
+    assert r.status_code == 500 and r.json()["type"] == "/errors/internal"
     got = booking(client, a["booking_id"])
     assert got["from"] == ts("14:00") and got["to"] == ts("17:00") and got["ground_held_from"] == ts("13:20")
     with db() as s:

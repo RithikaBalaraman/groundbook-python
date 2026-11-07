@@ -1,4 +1,4 @@
-"""Domain refusals and their `type` values. No web framework here: services raise these
+"""Domain refusals and the frozen `type` values. No web framework here: services raise these
 classes, and `handlers.py` -- the only place that knows about HTTP -- turns each one into application/problem+json.
 
 The class attributes below are the single source of truth for status, type and title.
@@ -67,6 +67,10 @@ class NoSuchGround(DomainError):
     status, type, title = 404, "/errors/no-such-ground", "No such ground at this venue"
 
 
-# (status, type, title) of the refusals the framework raises before a route runs.
+# (status, type, title) of the refusals the framework raises before a route runs, and of the unexpected.
 VALIDATION = (422, "/errors/validation", "The request body is not valid")
 FILTER = (400, "/errors/validation", "Invalid query parameter")
+INTERNAL = (500, "/errors/internal", "Something went wrong")
+NOT_FOUND = (404, "/errors/not-found", "No such resource")
+METHOD_NOT_ALLOWED = (405, "/errors/method-not-allowed", "Method not allowed")
+HTTP_ERROR = "/errors/http"          # any other status the framework raises; the title is the status's reason phrase
