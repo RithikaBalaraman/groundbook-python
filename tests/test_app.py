@@ -23,6 +23,7 @@ ANSWERS = {
     ("post", "/bookings/{booking_id}/confirm"): {"200", "404", "409", "500"},
     ("post", "/bookings/{booking_id}/cancel"): {"200", "404", "409", "500"},
     ("post", "/bookings/{booking_id}/move"): {"200", "400", "404", "409", "422", "500"},
+    ("get", "/settings"): {"200", "500"},
 }
 
 
@@ -36,8 +37,9 @@ def test_docs_render_and_list_every_endpoint_with_a_summary_and_a_tag(client):
     spec = client.get("/openapi.json").json()
     paths = spec["paths"]
     assert set(paths) == {"/venues/{venue}/grounds", "/venues/{venue}/event-types", "/venues/{venue}/grounds/{ground}/day", "/bookings",
-                          "/bookings/{booking_id}", "/bookings/{booking_id}/confirm", "/bookings/{booking_id}/cancel", "/bookings/{booking_id}/move"}
-    assert {t["name"] for t in spec["tags"]} == {"grounds", "bookings", "moves"}
+                          "/bookings/{booking_id}", "/bookings/{booking_id}/confirm", "/bookings/{booking_id}/cancel", "/bookings/{booking_id}/move",
+                          "/settings"}
+    assert {t["name"] for t in spec["tags"]} == {"grounds", "bookings", "moves","settings"}
     for path, ops in paths.items():
         for op in ops.values():
             assert op.get("summary") and len(op.get("tags", [])) == 1, path
@@ -45,7 +47,8 @@ def test_docs_render_and_list_every_endpoint_with_a_summary_and_a_tag(client):
     assert tags == {("get", "/venues/{venue}/grounds"): "grounds", ("get", "/venues/{venue}/event-types"): "grounds",
                     ("get", "/venues/{venue}/grounds/{ground}/day"): "grounds", ("post", "/bookings"): "bookings",
                     ("get", "/bookings/{booking_id}"): "bookings", ("post", "/bookings/{booking_id}/confirm"): "bookings",
-                    ("post", "/bookings/{booking_id}/cancel"): "bookings", ("post", "/bookings/{booking_id}/move"): "moves"}
+                    ("post", "/bookings/{booking_id}/cancel"): "bookings", ("post", "/bookings/{booking_id}/move"): "moves",
+                    ("get", "/settings"):"settings"}
 
 
 def test_every_refusal_is_documented_with_a_problem_example(client):
@@ -111,3 +114,8 @@ def test_the_type_values_are_frozen():
     types = set(__import__("re").findall(r'"(/errors/[a-z-]+)"', src))
     assert types == ERRORS | {"/errors/no-such-venue", "/errors/no-such-event-type", "/errors/already-confirmed", "/errors/already-cancelled",
                               "/errors/internal", "/errors/domain", "/errors/not-found", "/errors/method-not-allowed", "/errors/http"}
+def test_one_router_per_resource_mounted_from_one_app():
+    app_src = (PKG.parent / "groundbook" / "app.py").read_text(encoding="utf-8")
+    assert {p.stem for p in (PKG / "routers").glob("*.py")} == {"__init__", "grounds", "bookings", "moves", "settings"}
+    assert "for r in (grounds.router, bookings.router, moves.router, settings_router.router):" in app_src
+    assert app_src.count("include_router") == 1

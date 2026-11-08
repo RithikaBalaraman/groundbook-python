@@ -40,6 +40,9 @@ def list_event_types(session: Session, venue: Venue) -> list[EventType]:
     return list(session.scalars(select(EventType).where(EventType.venue_id == venue.id).order_by(EventType.id)))
 
 
+def buffers(session: Session, venue: Venue) -> dict[str, tuple[int, int]]:
+    """The live buffer table, per event type."""
+    return {t.code: (t.setup_minutes, t.teardown_minutes) for t in list_event_types(session, venue)}
 def hours_for(ground: Ground, day: date) -> tuple[str, str]:
     """Sunday uses the sunday_* columns."""
     if day.weekday() == 6:
