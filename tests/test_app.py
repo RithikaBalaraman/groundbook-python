@@ -120,3 +120,4 @@ def test_one_router_per_resource_mounted_from_one_app():
     assert {p.stem for p in (PKG / "routers").glob("*.py")} == {"__init__", "grounds", "bookings", "moves", "settings"}
     assert "for r in (grounds.router, bookings.router, moves.router, settings_router.router):" in app_src
     assert app_src.count("include_router") == 1
+    assert "request method=GET path=/boom status=500" in lines, "and the request still gets its one line"

@@ -1,4 +1,4 @@
-"""One settings object, read once at start-up. Nothing is hard-coded.
+"""One settings object, read once at start-up. Nothing is hard-coded; an env-file can feed it.
 The buffers live on the event types (loaded from seed/event_types.csv), never in a setting."""
 from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
